@@ -62,8 +62,7 @@ func TestParseEmail(t *testing.T) {
 			},
 			messageID: "1234@local.machine.example",
 			date:      parseDate("Fri, 21 Nov 1997 09:55:06 -0600"),
-			textBody: `This is a message just to say hello.
-So, "Hello".`,
+			textBody:  `This is a message just to say hello.So, "Hello".`,
 		},
 		2: {
 			mailData: rfc5322exampleA12,
@@ -180,8 +179,7 @@ So, "Hello".`,
 			},
 			resentMessageID: "78910@example.net",
 			resentDate:      parseDate("Mon, 24 Nov 1997 14:22:01 -0800"),
-			textBody: `This is a message just to say hello.
-So, "Hello".`,
+			textBody:        `This is a message just to say hello.So, "Hello".`,
 		},
 		6: {
 			mailData:    data1,
@@ -205,7 +203,7 @@ So, "Hello".`,
 			htmlBody:  "<div dir=\"ltr\"><br></div>",
 			attachments: []attachmentData{
 				{
-					filename:    "Peter Paholík 1 4 2017 2017-04-07.json",
+					filename:    "=?UTF-8?Q?Peter_Paholi=CC=81k_1?= =?UTF-8?Q?_4_2017_2017=2D04=2D07=2Ejson?=",
 					contentType: "application/json",
 					data:        "[1, 2, 3]",
 				},
@@ -239,11 +237,7 @@ So, "Hello".`,
 			references: []string{"2f6b7595-c01e-46e5-42bc-f263e1c4282d@receiver.com", "9ff38d03-c4ab-89b7-9328-e99d5e24e3ba@domain.com"},
 			date:       parseDate("Fri, 07 Apr 2017 12:59:55 +0200"),
 			htmlBody:   `<html>data<img src="part2.9599C449.04E5EC81@develhell.com"/></html>`,
-			textBody: `First level
-> Second level
->> Third level
->
-`,
+			textBody:   `First level> Second level>> Third level>`,
 			embeddedFiles: []embeddedFileData{
 				{
 					cid:         "part2.9599C449.04E5EC81@develhell.com",
@@ -274,7 +268,7 @@ So, "Hello".`,
 			messageID:   "1234@local.machine.example",
 			date:        parseDate("Fri, 21 Nov 1997 09:55:06 -0600"),
 			contentType: `image/jpeg; x-unix-mode=0644; name="image.gif"`,
-			content:     `GIF89a;`,
+			content: `GIF89a;`,
 		},
 		9: {
 			contentType: `multipart/mixed; boundary="0000000000007e2bb40587e36196"`,
@@ -372,15 +366,15 @@ So, "Hello".`,
 			htmlBody:  "<div dir=\"ltr\"><br></div>",
 			attachments: []attachmentData{
 				{
-					filename:      "unencoded.csv",
-					contentType:   "application/csv",
-					data: fmt.Sprintf("\n"+`"%s", "%s", "%s", "%s", "%s"`+"\n"+`"%s", "%s", "%s", "%s", "%s"`+"\n", "Some", "Data", "In", "Csv", "Format", "Foo", "Bar", "Baz", "Bum", "Poo"),
+					filename:    "unencoded.csv",
+					contentType: "application/csv",
+					data:        fmt.Sprintf("\n"+`"%s", "%s", "%s", "%s", "%s"`+"\n"+`"%s", "%s", "%s", "%s", "%s"`+"\n", "Some", "Data", "In", "Csv", "Format", "Foo", "Bar", "Baz", "Bum", "Poo"),
 				},
 			},
 		},
 		13: {
 			contentType: "multipart/related; boundary=\"000000000000ab2e2205a26de587\"",
-			mailData:   multipartRelatedExample,
+			mailData:    multipartRelatedExample,
 			subject:     "Saying Hello",
 			from: []mail.Address{
 				{
@@ -389,7 +383,7 @@ So, "Hello".`,
 				},
 			},
 			sender: mail.Address{
-				Name: "Michael Jones",
+				Name:    "Michael Jones",
 				Address: "mjones@machine.example",
 			},
 			to: []mail.Address{
@@ -401,7 +395,7 @@ So, "Hello".`,
 			messageID: "1234@local.machine.example",
 			date:      parseDate("Fri, 21 Nov 1997 09:55:06 -0600"),
 			htmlBody:  "<div dir=\"ltr\"><div>Time for the egg.</div><div><br></div><div><br><br></div></div>",
-			textBody: "Time for the egg.",
+			textBody:  "Time for the egg.",
 		},
 	}
 
@@ -512,13 +506,17 @@ So, "Hello".`,
 		if !assertAddressListEq(td.replyTo, d) {
 			t.Errorf("[Test Case %v] Wrong reply to. Expected: %s, Got: %s", index, td.replyTo, d)
 		}
+		if td.htmlBody != "" {
+			if td.htmlBody != e.Htmls[0].Data {
+				t.Errorf("[Test Case %v] Wrong html body. Expected: '%s', Got: '%v'", index, td.htmlBody, e.Htmls)
+			}
 
-		if td.htmlBody != e.HTMLBody {
-			t.Errorf("[Test Case %v] Wrong html body. Expected: '%s', Got: '%s'", index, td.htmlBody, e.HTMLBody)
 		}
+		if td.textBody != "" {
+			if td.textBody != e.Texts[0].Data {
+				t.Errorf("[Test Case %v] Wrong text body. Expected: '%s', Got: '%v'", index, td.textBody, e.Texts)
+			}
 
-		if td.textBody != e.TextBody {
-			t.Errorf("[Test Case %v] Wrong text body. Expected: '%s', Got: '%s'", index, td.textBody, e.TextBody)
 		}
 
 		if len(td.attachments) != len(e.Attachments) {
@@ -595,9 +593,9 @@ func parseDate(in string) time.Time {
 }
 
 type attachmentData struct {
-	filename      string
-	contentType   string
-	data          string
+	filename    string
+	contentType string
+	data        string
 }
 
 type embeddedFileData struct {
